@@ -1,6 +1,5 @@
 #!/usr/bin/python3 -
 
-import requests
 import json
 import argparse
 import os
@@ -11,9 +10,12 @@ import bannerHandler
 import greyNoiseHandler
 import ipAPIHandler
 import shodanHandler
+import otxHandler
+import sendRequests
 
 # IP api : "http://ip-api.com/json/104.168.167.92"
 # OTX api : "https://otx.alienvault.com/api/v1/indicators/IPv4/104.168.167.92/reputation"
+#			"https://otx.alienvault.com/api/v1/indicators/IPv4/104.168.167.92/nids_list"
 # VIRUSTOTAL api : "https://www.virustotal.com/vtapi/v2/ip-address/report?apikey=<apiKey>&ip=104.168.167.92"
 # GREYNOISE api : "http://api.greynoise.io:8888/v1/query/ip"
 # APILITY api : "https://api.apility.net/v2.0/ip/"
@@ -40,68 +42,57 @@ def main():
 	# getAPIKeys()
 
 	choice = ""
-	scanIP = "104.168.167.92"
-	'''scanIP = str(args.addr)'''
+	if (str(args.addr) != "") and (str(args.addr) != " ") and (args.addr is not None):
+		scanIP = str(args.addr)
+	else:
+		scanIP = "104.168.167.92"											# testing ip
 	apiKey = ""												
 	
 	choice = input("\n\t\t[1] IP api\n\t\t[2] OTX api\n\t\t[3] Virustotal api\n\t\t[4] Greynoise api\n\t\t[5] Apility api\n\t\t[6] Shodan api\n\t\t[7] All api\n\n Choice : ")
 	if choice == "1":
-		data = sendGETrequestWithoutParams("http://ip-api.com/json/"+scanIP)
-		ipAPIHandler.showIpAPI(data)
+		ipAPIHandler.ipApiMain(scanIP)
 	elif choice == "2":
-		data = sendGETrequestWithoutParams("https://otx.alienvault.com/api/v1/indicators/IPv4/"+scanIP+"/reputation")
+		if keys == {}:
+			keys = getAPIKeys(apiThatUseKey)
+		otxHandler.otxMain(scanIP, keys["apiData"]["otx"])
 	elif choice == "3":
-		sendGETrequestWitParams("https://www.virustotal.com/vtapi/v2/ip-address/report",{"apikey":apiKey, "ip":scanIP})
+		data = sendRequests.sendGETrequestWithParams("https://www.virustotal.com/vtapi/v2/ip-address/report", myparams={"apikey":apiKey, "ip":scanIP})
+		print(json.dumps(data, sort_keys = True, indent = 4))
 	elif choice == "4":
-		data = sendPOSTrequest("http://api.greynoise.io:8888/v1/query/ip", {"ip":scanIP})
-		greyNoiseHandler.showGreynoise(data)
+		greyNoiseHandler.greynoiseMain(scanIP)
 	elif choice == "5":
-		data = sendGETrequestWithoutParams("https://api.apility.net/v2.0/ip/"+scanIP)
+		data = sendRequests.sendGETrequestWithoutParams("https://api.apility.net/v2.0/ip/"+scanIP)
 	elif choice == "6":
-		if keys != {}:
-			getAPIKeys()
+		if keys == {}:
+			keys = getAPIKeys(apiThatUseKey)
+			print(keys)
 		else:
 			pass
-		sendGETrequestWitParams("https://api.shodan.io/shodan/host/"+scanIP, {"key":apiKey})
+		#sendRequests.sendGETrequestWithParams("https://api.shodan.io/shodan/host/"+scanIP, {"key":apiKey})
 	elif choice == "7":
+		# Getting keys
+		if keys == {}:
+			keys = getAPIKeys(apiThatUseKey)
 		# Printing IP API
-		data = sendGETrequestWithoutParams("http://ip-api.com/json/"+scanIP)
-		ipAPIHandler.showIpAPI(data)
+		ipAPIHandler.ipApiMain(scanIP)
 		# Printing Greynoise
-		data = sendPOSTrequest("http://api.greynoise.io:8888/v1/query/ip", {"ip":scanIP})
-		greyNoiseHandler.showGreynoise(data)
+		greyNoiseHandler.greynoiseMain(scanIP)
+		# Printing OTX
+		otxHandler.otxMain(scanIP, keys["apiData"]["otx"])
 	else:
 		print("[-] What are you doing? -_-")
 
-def getAPIKeys():
+def getAPIKeys(apiThatUseKey):
 	if "data" in os.listdir(os.path.abspath(__file__).strip(os.path.basename(__file__))+"../data/"):
-		pass
+		tempData = customEncMod.decryptmod()
 	else:
 		print("[-] Data file 'data' is not present in current directory\n[+] Creating data file\n")
 		for key in apiThatUseKey:
 			apiThatUseKey[key] = getpass.getpass("[?] Enter "+key+" apikey : ")
 		customEncMod.createDataFile(apiThatUseKey)
+		tempData = customEncMod.encryptmod()
 
-	tempData = customEncMod.encryptmod()
 	return tempData 
-
-def sendGETrequestWithoutParams(scanURL):
-	response = requests.get(url = scanURL)
-	tempdata = json.dumps(response.json())
-	data = json.loads(tempdata)
-	return data
-
-def sendGETrequestWitParams(scanURL, myparams):
-	response = requests.get(url = scanURL, params = myparams)
-	tempdata = json.dumps(response.json())
-	data = json.loads(tempdata)
-	print(json.dumps(data, indent=4, sort_keys=True))
-
-def sendPOSTrequest(scanURL, myparams):
-	response = requests.post(url = scanURL, data = myparams)
-	tempdata = json.dumps(response.json())
-	data = json.loads(tempdata)
-	return data
 
 if __name__ == "__main__":
 	main()
