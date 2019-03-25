@@ -10,9 +10,7 @@ def sendGETrequest(scanURL, myparams="", myheaders=""):
 	data = response.json()
 	return data
 
-def sendPOSTrequest(scanURL, mydata, myheaders=""):
-	if myheaders == "":
-		myheaders = {"Content-Type":"application/json"}
-	response = requests.post(url = scanURL, headers=myheaders, data = mydata)
+def sendPOSTrequest(scanURL, mydata):
+	response = requests.post(url = scanURL, data = mydata)
 	data = response.json()
 	return data
