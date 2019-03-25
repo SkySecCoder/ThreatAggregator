@@ -31,10 +31,11 @@ URLSCAN
 
 
 # INTEGRATE
-APILITY
 CYMRU
 ARTISTS AGAINST 419		
 
 
 BRANCH TESTING	
 ```
+
+Differnetiate between email domain and IP in threatAggreagator.py
