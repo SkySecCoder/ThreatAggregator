@@ -6,13 +6,13 @@ import os
 import getpass
 import crypt
 
-def createDataFile(dictToEncrypt):
+def createDataFile(dictToEncrypt):									# [Accessible as external mod]
 	data = {"encryptFlag" : 0, "apiData":dictToEncrypt}
 	file = open("../data/data", "w")
 	file.write(json.dumps(data, sort_keys=True, indent=4))
 	file.close()
 
-def encryptmod():
+def encryptmod():													# [Accessible as external mod(must only be used in the begining when file not encrypted)] 
 	# decData is a list whose "0" position contains 0(decryption failure) or 1(decryption successful). It's 1 position contains the decrypted data
 	decData = [0]
 
@@ -29,7 +29,7 @@ def encryptmod():
 			# Ask user if json has to be encrypted using choiceCounter
 			choiceCounter = 0
 			while choiceCounter == 0:
-				choice = raw_input("[?] It appears you would like to encrypt the data file.\n[?] Proceed?(y/n):")
+				choice = input("[?] It appears you would like to encrypt the data file.\n[?] Proceed?(y/n):")
 				if (choice == "y" or choice == "Y"):
 					encryptStart(1)
 					choiceCounter = 1
@@ -54,13 +54,31 @@ def encryptmod():
 			print("[-] Your data file seems to be corrupted or is not following the required template")
 			decData[0] = 0
 	if decData[0] == 1:
+		passDataToParentProgram = {}
 		try:
 			passDataToParentProgram = json.loads(decData[1])
 		except:
-			print("[-] Corrupted data has been recovered. This may be because you entered the wrong password\n    or the data file has been modified.\n")
+			print("[-] Data was found to be corrupted. This may be because you entered the wrong password\n    or the data file has been modified.\n")
 		return passDataToParentProgram
 	else:
-		return "0"
+		return {}
+
+def decryptmod():													# [Accessible as external mod]
+	with open("../data/data") as f:
+		line = f.readline()
+	if "[DATA ENCRYPTED]" in line:
+		decData = decryptStart()
+		if decData[0] == 1:
+			passDataToParentProgram = {}
+			try:
+				passDataToParentProgram = json.loads(decData[1])
+			except:
+				print("[-] Corrupted data has been recovered. This may be because you entered the wrong password\n    or the data file has been modified.\n")
+			return passDataToParentProgram
+		else:
+			return "0"
+	else:
+		return encryptmod()
 
 def encryptStart(initialEncrypt):
 	# initialEncrypt is 1 if the data file has to be encrypted for the first time. This valuse will change in future versions of the program to accomodate change in credentials
@@ -93,7 +111,7 @@ def encryptStart(initialEncrypt):
 		# Attaching "[DATA ENCRYPTED]" at the start of file to indicate that the file has been encrypted by this program
 		file.write("[DATA ENCRYPTED]\n"+enc)
 		file.close
-		print("[+] Your data has been encrypted\n[+] Please remember your password, in order to access your data.")
+		print("[+] Your encrypted data file has been created\n[+] Please remember your password, in order to access your data.")
 
 def opensslLocation():
 	location = ""
@@ -105,7 +123,7 @@ def opensslLocation():
 			if ("openssl" in os.listdir("/usr/local/Cellar/")):
 				allDependenciesInstalled = True
 			else:
-				choice = raw_input("[?] This program needs openssl to work. Install openssl? : ")
+				choice = input("[?] This program needs openssl to work. Install openssl? : ")
 				if choice == 'Y' or choice == 'y':
 					os.system("brew install openssl")
 					allDependenciesInstalled = True
@@ -114,10 +132,10 @@ def opensslLocation():
 					location = "[-] Error"
 		else:
 			print("[-] Brew is not installed")
-			choice = raw_input("[?] You must install brew for this program to work. Install brew? : ")
+			choice = input("[?] You must install brew for this program to work. Install brew? : ")
 			if (choice == 'Y' or choice == 'y'):
 				os.system('/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"')
-				choice = raw_input("[?] This program needs openssl to work. Install openssl? : ")
+				choice = input("[?] This program needs openssl to work. Install openssl? : ")
 				if choice == 'Y' or choice == 'y':
 					os.system("brew install openssl")
 					allDependenciesInstalled = True
@@ -141,7 +159,7 @@ def opensslLocation():
 		return location 
 
 def decryptStart():
-	print("[+] Starting to decrypt data file")
+	print("[+] Accessing encrypted data file")
 	dec = []
 	try:
 		#Decrypting
@@ -154,9 +172,9 @@ def decryptStart():
 		dec.append(1)
 		ossllocation = opensslLocation()
 		dec.append(os.popen("echo '"+data+"' | "+ossllocation+" enc -nosalt -d -aes-256-cbc -base64 -pass pass:"+AESkey).read())
-		print("[+] Decryption successful")
+		print("[+] Decryption completed")
 		# Credential Recovery
-		# print dec
+		#print dec
 		return dec
 	except Exception as e:
 		print("[-] Error occurred : "+str(e))
