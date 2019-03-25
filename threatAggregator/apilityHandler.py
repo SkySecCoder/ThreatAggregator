@@ -53,9 +53,9 @@ def scan_ip(ip, key):
                 for activity in data['history']['activity']:
                     filtered_activity = {}
                     filtered_activity['changed_since_days'] = (datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc) - datetime.datetime.utcfromtimestamp(activity['timestamp']/1000).replace(tzinfo=datetime.timezone.utc)).days
-                    result['historical_activity']['Days'].append(filtered_activity['changed_since_days'])
+                    result['historical_activity']['Days Ago'].append(filtered_activity['changed_since_days'])
                     result['historical_activity']['Blacklist'].append(activity['blacklists'])
-                result['historical_activity']['Days'] = list(set(result['historical_activity']['Days']))
+                result['historical_activity']['Days Ago'] = list(set(result['historical_activity']['Days Ago']))
                 result['historical_activity']['Blacklist'] = list(set(result['historical_activity']['Blacklist']))
 
         print("[apility.io] [%s] Getting Geo Info" % ip)
@@ -161,6 +161,7 @@ def main(ioc, key):
     if result:
         print(json.dumps(result, indent=4, sort_keys=True))
     '''
+
 
 if __name__ == "__main__":
 	main(ioc, key)
