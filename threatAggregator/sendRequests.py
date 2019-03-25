@@ -1,11 +1,6 @@
 import requests
 
-def sendGETrequestWithoutParams(scanURL):
-	response = requests.get(url = scanURL)
-	data = response.json()
-	return data
-
-def sendGETrequestWithParams(scanURL, myparams="", myheaders=""):
+def sendGETrequest(scanURL, myparams="", myheaders=""):
 	if myheaders == "":
 		myheaders = {"Content-Type":"application/json"}
 	if "" == myparams:

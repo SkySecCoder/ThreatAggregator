@@ -25,15 +25,15 @@ def otxMain(scanIP="", key=""):
 	showOtxNidsData(nidsData)
 
 def collectNIDSData(scanIP, key):
-	nidsDataFromAPI = sendRequests.sendGETrequestWithParams("https://otx.alienvault.com/api/v1/indicators/IPv4/"+scanIP+"/nids_list", myheaders={"X-OTX-API-KEY": key})
+	nidsDataFromAPI = sendRequests.sendGETrequest("https://otx.alienvault.com/api/v1/indicators/IPv4/"+scanIP+"/nids_list", myheaders={"X-OTX-API-KEY": key})
 	nidsData = []
 	for nids in nidsDataFromAPI["results"]:
-		data = sendRequests.sendGETrequestWithoutParams("https://otx.alienvault.com/api/v1/indicators/nids/"+str(nids)+"/general")
+		data = sendRequests.sendGETrequest("https://otx.alienvault.com/api/v1/indicators/nids/"+str(nids)+"/general")
 		nidsData.append(data)
 	return nidsData
 
 def collectReputationData(scanIP):
-	reputationData = sendRequests.sendGETrequestWithoutParams("https://otx.alienvault.com/api/v1/indicators/IPv4/"+str(scanIP)+"/reputation")
+	reputationData = sendRequests.sendGETrequest("https://otx.alienvault.com/api/v1/indicators/IPv4/"+str(scanIP)+"/reputation")
 	return reputationData
 
 def showOtxNidsData(data):
@@ -57,7 +57,7 @@ def showOtxNidsData(data):
 	print()
 
 def showOtxReputationData(data):
-	#print(json.dumps(data, sort_keys = True, indent = 4)) 
+	#print(json.dumps(data, sort_keys = True, indent = 4))
 	print()
 	print("[+] IP was first seen : \t"+data["reputation"]["first_seen"])
 	print("[+] IP was last seen : \t\t"+data["reputation"]["last_seen"])

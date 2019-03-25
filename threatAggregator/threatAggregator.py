@@ -11,6 +11,7 @@ import greyNoiseHandler
 import ipAPIHandler
 import shodanHandler
 import otxHandler
+import apilityHandler
 import sendRequests
 
 # IP api : "http://ip-api.com/json/104.168.167.92"
@@ -46,8 +47,11 @@ def main():
 		scanIP = str(args.addr)
 	else:
 		scanIP = "104.168.167.92"											# testing ip
-	apiKey = ""												
-	
+	apiKey = ""
+
+	'''
+
+	'''
 	choice = input("\n\t\t[1] IP api\n\t\t[2] OTX api\n\t\t[3] Virustotal api\n\t\t[4] Greynoise api\n\t\t[5] Apility api\n\t\t[6] Shodan api\n\t\t[7] All api\n\n Choice : ")
 	if choice == "1":
 		ipAPIHandler.ipApiMain(scanIP)
@@ -56,19 +60,21 @@ def main():
 			keys = getAPIKeys(apiThatUseKey)
 		otxHandler.otxMain(scanIP, keys["apiData"]["otx"])
 	elif choice == "3":
-		data = sendRequests.sendGETrequestWithParams("https://www.virustotal.com/vtapi/v2/ip-address/report", myparams={"apikey":apiKey, "ip":scanIP})
+		data = sendRequests.sendGETrequest("https://www.virustotal.com/vtapi/v2/ip-address/report", myparams={"apikey":apiKey, "ip":scanIP})
 		print(json.dumps(data, sort_keys = True, indent = 4))
 	elif choice == "4":
 		greyNoiseHandler.greynoiseMain(scanIP)
 	elif choice == "5":
-		data = sendRequests.sendGETrequestWithoutParams("https://api.apility.net/v2.0/ip/"+scanIP)
+		if keys == {}:
+			keys = getAPIKeys(apiThatUseKey)
+		apilityHandler.main(scanIP, keys["apiData"]["apility"])
 	elif choice == "6":
 		if keys == {}:
 			keys = getAPIKeys(apiThatUseKey)
 			print(keys)
 		else:
 			pass
-		#sendRequests.sendGETrequestWithParams("https://api.shodan.io/shodan/host/"+scanIP, {"key":apiKey})
+		#sendRequests.sendGETrequest("https://api.shodan.io/shodan/host/"+scanIP, {"key":apiKey})
 	elif choice == "7":
 		# Getting keys
 		if keys == {}:
@@ -92,7 +98,7 @@ def getAPIKeys(apiThatUseKey):
 		customEncMod.createDataFile(apiThatUseKey)
 		tempData = customEncMod.encryptmod()
 
-	return tempData 
+	return tempData
 
 if __name__ == "__main__":
 	main()
