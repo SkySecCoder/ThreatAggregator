@@ -12,16 +12,16 @@ def ipApiMain(scanIP=""):
 			break
 
 	print("\n [+] IP API data\n")
-	
+
 	ipApiData = collectData(scanIP)
 	showIpAPI(ipApiData)
 
 def collectData(scanIP):
-	ipApiData = sendRequests.sendGETrequestWithoutParams("http://ip-api.com/json/"+scanIP)
+	ipApiData = sendRequests.sendGETrequest("http://ip-api.com/json/"+scanIP)
 	return ipApiData
 
 def showIpAPI(data):
-	print 
+	print
 	try:
 		if data["status"] != "fail":
 			print("[+] Query : "+"\t\t\t"+data["query"])
@@ -47,19 +47,19 @@ if __name__ == "__main__":
 
 '''
 {
-	"as": "AS54290 Hostwinds LLC.", 
-	"city": "Seattle", 
-	"country": "United States", 
-	"countryCode": "US", 
-	"isp": "Hostwinds LLC.", 
-	"lat": 47.4941, 
-	"lon": -122.294, 
-	"org": "Hostwinds LLC", 
-	"query": "104.168.167.92", 
-	"region": "WA", 
-	"regionName": "Washington", 
-	"status": "success", 
-	"timezone": "America/Los_Angeles", 
+	"as": "AS54290 Hostwinds LLC.",
+	"city": "Seattle",
+	"country": "United States",
+	"countryCode": "US",
+	"isp": "Hostwinds LLC.",
+	"lat": 47.4941,
+	"lon": -122.294,
+	"org": "Hostwinds LLC",
+	"query": "104.168.167.92",
+	"region": "WA",
+	"regionName": "Washington",
+	"status": "success",
+	"timezone": "America/Los_Angeles",
 	"zip": "98168"
 }
 '''
